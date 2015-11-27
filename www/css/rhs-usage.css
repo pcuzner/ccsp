@@ -1,0 +1,64 @@
+body {
+    background-color:#505050;
+    color:white;
+    font-family: Helvetica, Arial, sans-serif;
+}
+.logo {
+	vertical-align: bottom;
+	height: 40px
+}
+p {
+	text-align:justify;
+}
+.banner {
+	color: white;
+	font-weight:bold;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 1.7em;
+	padding-left: 10px;
+
+}
+#info {
+	position: relative;
+	display:block;
+	top:60px;
+	left:10px;
+	width:inherit;
+}
+#detail{
+	position: relative;
+	display:block;
+	top:120px;
+	left:10px;
+	width:inherit;
+}
+.chart {
+	background-color: #f3f3f3;
+	border-radius: 8px;
+}
+.image {
+	position:absolute;
+	top:50%;
+	left:50%;
+	transform: translate(-50%,-50%)
+}
+.infoPanel {
+	border-style: solid;
+	border-color: #f3f3f3;
+	border-width: 1px;
+	border-radius: 8px;
+}
+#capacity_chart {
+	position: absolute;
+	left: 60px;
+	top: 80px;
+	width: 650px;
+	height:450px;
+}
+#summary_info {
+	position: absolute;
+	top:80px;
+	left:750px;
+	height:450px;
+	width: 400px;
+}

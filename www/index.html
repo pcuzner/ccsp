@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <!--
+         Prevent client side caching, so when the user hits refresh they get a new copy
+         of the chart(s)
+    -->
+    <meta Http-Equiv="Cache-Control" Content="no-cache">
+    <meta Http-Equiv="Pragma" Content="no-cache">
+    <meta Http-Equiv="Expires" Content="0">
+    <meta Http-Equiv="Pragma-directive: no-cache">
+    <meta Http-Equiv="Cache-directive: no-cache">
+
+    <link rel="shortcut icon" href="images/redhat.ico">
+    <link rel="stylesheet" type="text/css" href="css/rhs-usage.css" />
+    <title>Red Hat Storage Capacity Utilisation</title>
+    <script src="js/page_ready.js"></script>
+    <script src="js/update_mode.js"></script>
+    <script src="js/update_details.js"></script>
+</head>
+<body>
+	<img class='logo' src="images/logo.png" /><span class='banner'>Red Hat Storage Capacity Utilisation</span>
+    <div id="capacity_chart" class="chart">
+        <img src="images/usage_chart.png" class="image"/>
+    </div>
+    <div id="summary_info" class="infoPanel">
+        <span style="display:block; text-align:center;margin-top:10px;"><h3>Reporting Summary</h3></span>
+        <div id="info">
+            <!-- the span content is provided by python -->
+            Storage Cluster Type:&nbsp<span id="clusterType"></span><br>
+            Accounting Mode:&nbsp<span id="accntMode"></span>
+        </div>
+        <div id="detail">
+            Observed configuration maximums:<br>
+            <!-- the span content is provided by python -->
+            Nodes&nbsp:&nbsp<span id="maxNodes"></span><br>
+            Raw&nbsp:&nbsp<span id="maxRaw"></span><br>
+            Usable&nbsp:&nbsp<span id="maxUsable"></span><br>
+            Used&nbsp:&nbsp<span id="maxUsed"></span><br>
+        </div>
+    </div>
+</body>
+</html>

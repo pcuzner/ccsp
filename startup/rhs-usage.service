@@ -1,0 +1,13 @@
+[Unit]
+Description=Red Hat Storage Capacity Collector
+After=network.online.target
+
+[Service]
+Type=simple
+User=paul
+Group=paul
+WorkingDirectory=/root/ccsp
+ExecStart=/root/ccsp/rhs-usage.py --debug
+
+[Install]
+WantedBy=multi-user.target

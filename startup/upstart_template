@@ -1,0 +1,26 @@
+Place the start up script in /etc/init/something.conf
+
+containing;
+
+description "My chat server"
+author "your@email-address.com"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+env AN_ENVIRONMENTAL_VARIABLE=i-want-to-set
+
+respawn
+
+exec /srv/applications/chat.py
+
+
+or
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+respawn
+setuid nobody
+setgid nogroup
+exec python /path/to/your/python.py
