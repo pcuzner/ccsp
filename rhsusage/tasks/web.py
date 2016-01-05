@@ -47,6 +47,9 @@ def update_mode_js(web_root):
         js.write("}\n")
     cfg.log.debug("Updated update_mode.js with runtime settings")
 
+def bold_text(text):
+    return "<strong>" + text + "</strong>"
+
 def update_details_js(web_root, max_values):
 
     # 1073741824 = 1GB expressed in bytes
@@ -54,12 +57,29 @@ def update_details_js(web_root, max_values):
     max_usable = math.ceil(max_values['usable'] / float(1024**3)) if max_values['usable'] > 1073741824 else 0
     max_used = math.ceil(max_values['used'] / float(1024**3)) if max_values['used'] > 1073741824 else 0
 
+    # Define a nodes, usable and raw strings
+    # check the cfg.run_mode
+    # if set to shared, use set the max_usable string with <strong>
+    # if dedicated for ceph emphasize the max_raw, for gluster emphasize max nodes
+    max_nodes_str = str(max_values['nodes'])
+    max_raw_str = str(max_raw)
+    max_usable_str = str(max_usable)
+    max_used_str = str(max_used)
+
+    if cfg.run_mode == "dedicated":
+        if cfg.storage_type == "gluster":
+            max_nodes_str = bold_text(max_nodes_str)
+        else:
+            max_raw_str = bold_text(max_raw_str)
+    else:
+        max_usable_str = bold_text(max_usable_str)
+
     with open(os.path.join(web_root, 'js/update_details.js'), 'w') as js:
         js.write("function update_details() {\n")
-        js.write("document.getElementById('maxNodes').innerHTML='" + str(max_values['nodes']) + "';\n")
-        js.write("document.getElementById('maxRaw').innerHTML='" + str(max_raw) + " GB';\n")
-        js.write("document.getElementById('maxUsable').innerHTML='" + str(max_usable) + " GB';\n")
-        js.write("document.getElementById('maxUsed').innerHTML='" + str(max_used) + " GB';\n")
+        js.write("document.getElementById('maxNodes').innerHTML='" + max_nodes_str + "';\n")
+        js.write("document.getElementById('maxRaw').innerHTML='" + max_raw_str + " GB';\n")
+        js.write("document.getElementById('maxUsable').innerHTML='" + max_usable_str + " GB';\n")
+        js.write("document.getElementById('maxUsed').innerHTML='" + max_used_str + " GB';\n")
         js.write("}\n")
 
     cfg.log.debug("Updated update_details.js with current maximums")
