@@ -30,7 +30,7 @@ class WebFrontEnd(threading.Thread):
         self.server.rootdir = webroot
         self.setDaemon(True)
         self.shutdown = False
-        update_mode_js(webroot,)
+        update_mode_js(webroot)
 
     def run(self):
         cfg.log.info("Starting passive web interface")
