@@ -21,7 +21,7 @@ class GlusterCollector(object):
 
     def get_data(self):
 
-        cmd = ShellCommand('gstatus -o json')
+        cmd = ShellCommand('gstatus -o json', timeout=10)
         cmd.run()
         cfg.log.debug("gstatus command returned %d" % cmd.rc)
 
