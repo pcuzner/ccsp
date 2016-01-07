@@ -4,10 +4,9 @@ After=network.online.target
 
 [Service]
 Type=simple
-User=paul
-Group=paul
-WorkingDirectory=/root/ccsp
-ExecStart=/root/ccsp/rhs-usage.py --debug
+User=root
+Group=root
+ExecStart=/usr/bin/rhs_usage --debug
 
 [Install]
 WantedBy=multi-user.target
