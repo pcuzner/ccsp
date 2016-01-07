@@ -7,7 +7,7 @@ import logging.handlers
 
 def init(run_time_args):
     parser = SafeConfigParser()
-    parser.read('rhs-usage.conf')
+    parser.read('/etc/rhs-usage.conf')
 
     global log_file
     global log_level
@@ -23,18 +23,18 @@ def init(run_time_args):
     global web_root
 
     # set defaults
-    log_file = '/tmp/rhs-usage.log'
-    web_root = '/root/ccsp/www'
+    log_file = '/var/log/rhs-usage.log'
     log_level = 'debug'
-    rrd_db = '/tmp/rhs-usage.rrd'
+    rrd_db = '/var/ccsp/rhs-usage.rrd'
     storage_type = 'gluster'
     run_mode = 'shared'
     sample_interval = 240
     web_server = 'n'
     web_server_port = 8080
+    web_root = '/var/www/ccsp'
 
     defaults = ['log_file', 'log_level', 'rrd_db', 'storage_type', 'run_mode', 'web_server', 'web_server_port',
-                'sample_interval']
+                'web_root', 'sample_interval']
 
     log = logging.getLogger('rhs-usage-log')
     syslog = logging.getLogger('syslog')
