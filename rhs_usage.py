@@ -32,7 +32,7 @@ def pre_reqs_ok(cluster_type):
 
 def _gluster_checks():
     try:
-        __import__('imp').find_module('gstatus/libgluster')
+        __import__('imp').find_module('gstatus')
         return True
     except ImportError:
         cfg.syslog.error("rhs-usage needs the gstatus rpm installed.")
