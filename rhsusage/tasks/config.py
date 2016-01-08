@@ -40,7 +40,7 @@ def init(run_time_args):
     syslog = logging.getLogger('syslog')
 
     # setup syslog first so we can log immediately, for any startup or config errors
-    syslog.setLevel("DEBUG") if run_time_args.debug else syslog.setLevel("INFO")
+    syslog.setLevel(logging.DEBUG) if run_time_args.debug else syslog.setLevel(logging.INFO)
     syslog_handler = logging.handlers.SysLogHandler(address='/dev/log')
     syslog.addHandler(syslog_handler)
 
@@ -63,7 +63,7 @@ def init(run_time_args):
     interval_secs = sample_interval * 60
 
     # set up application logging
-    log.setLevel("DEBUG") if run_time_args.debug else log.setLevel(log_level.upper())
+    log.setLevel(logging.DEBUG) if run_time_args.debug else log.setLevel(logging.getLevelName(log_level.upper()))
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     handler = logging.FileHandler(log_file)
     handler.setFormatter(formatter)
