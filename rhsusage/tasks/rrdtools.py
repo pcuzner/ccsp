@@ -2,6 +2,7 @@ __author__ = 'paul'
 
 import os
 import rrdtool
+import platform
 from operator import itemgetter
 
 
@@ -76,8 +77,8 @@ class RRDdatabase(object):
         graph_filename = os.path.join(cfg.web_root,'images/usage_chart.png')
         cfg.log.debug("Created capacity graph - %s" % graph_filename)
 
-        rrdtool.graph(str(graph_filename),'--start','now-4h','--step','600',
-                      '--border','0','--watermark','Red Hat Storage','--imgformat','PNG','--disable-rrdtool-tag',
+        graph_options = [str(graph_filename),'--start','now-4h','--step','600',
+                      '--watermark','Red Hat Storage','--imgformat','PNG','--disable-rrdtool-tag',
                       '--width','550','--height','350','--title','Capacity Utilisation',
                       '--vertical-label','Disk Capacity',
                       '--lower-limit','0',
@@ -85,7 +86,15 @@ class RRDdatabase(object):
                       'DEF:used=' + self.filename +':used_capacity:AVERAGE',
                       'DEF:usable=' + self.filename +':usable_capacity:MAX',
                       'LINE2:used#0000ff:GB Used',
-                      'LINE2:usable#cc0000:GB Usable')
+                      'LINE2:usable#cc0000:GB Usable']
+
+        # RHEL7's version of rrdtool supports a null border, so check if this is RHEL7 and add the additional options
+        # platform.dist() examples: ('redhat', '6.6', 'Santiago') or ('redhat', '7.1', 'Maipo')
+        if platform.dist()[1].startswith('7'):
+            graph_options.append('--border')
+            graph_options.append('0')
+
+        rrdtool.graph(graph_options)
 
     def create_graphs(self):
         cfg.log.debug('creating rrd graph(s)')
