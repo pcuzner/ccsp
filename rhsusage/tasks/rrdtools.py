@@ -88,13 +88,15 @@ class RRDdatabase(object):
                       'LINE2:used#0000ff:GB Used',
                       'LINE2:usable#cc0000:GB Usable']
 
-        # RHEL7's version of rrdtool supports a null border, so check if this is RHEL7 and add the additional options
+        # Later versions of rrdtool.graph support a null border. However, it's not listed in the __doc__ for
+        # graph, so here I just check for the version of OS and add the additional options if supported
         # platform.dist() examples: ('redhat', '6.6', 'Santiago') or ('redhat', '7.1', 'Maipo')
         if platform.dist()[1].startswith('7'):
             graph_options.append('--border')
             graph_options.append('0')
 
-        rrdtool.graph(graph_options)
+        rc = rrdtool.graph(*graph_options)
+
 
     def create_graphs(self):
         cfg.log.debug('creating rrd graph(s)')
