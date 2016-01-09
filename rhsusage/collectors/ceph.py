@@ -13,7 +13,7 @@ class CephCollector(object):
         pass
 
     def update(self):
-        cfg.log.info('get ceph stats')
+        cfg.log.info('getting ceph stats using ceph -s and ceph osd tree commands')
         cluster_stats = self.get_data()
         self.rrd_db.update(cluster_stats)
 
