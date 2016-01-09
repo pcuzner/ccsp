@@ -1,4 +1,4 @@
-%define dist .el7
+%define dist .el6
 Name:		ccsp	
 Version:	0.1
 Release:	6%{?dist}
@@ -17,7 +17,7 @@ BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
 
-Requires:	python >= 2.7
+Requires:	python >= 2.6
 Requires:   rrdtool-python
 
 
@@ -41,9 +41,9 @@ CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
 %install
 rm -rf %{buildroot}
 %{__python} setup.py install --skip-build --root %{buildroot} --install-scripts %{_bindir}
-mkdir -p %{buildroot}/etc/systemd/system
+mkdir -p %{buildroot}/etc/init
 mkdir -p %{buildroot}/var/ccsp
-install -m 0644 startup/rhs-usage.service %{buildroot}/etc/systemd/system
+install -m 0644 startup/rhs-usage.conf %{buildroot}/etc/init/
 
 #mkdir -p %{buildroot}%{_mandir}/man8
 #install -m 0644 gstatus.8 %{buildroot}%{_mandir}/man8/
@@ -63,7 +63,7 @@ rm -rf %{buildroot}
 %{python2_sitelib}/rhs_usage-%{version}-*.egg-info/
 %dir /var/ccsp
 /var/www/ccsp
-/etc/systemd/system/rhs-usage.service
+/etc/init/rhs-usage.conf
 
 
 %changelog

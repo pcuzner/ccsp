@@ -98,6 +98,7 @@ if __name__ == "__main__":
 
     # Before we start make sure we satisfy any pre-req checks
     if not pre_reqs_ok(cfg.storage_type):
+        cfg.syslog.error('Pre-requisites for rhs-usage are not available ... Aborting')
         sys.exit(16)
 
     start_data_collection()
