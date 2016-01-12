@@ -12,12 +12,6 @@ from rhsusage.tasks.web import update_details_js
 
 class RRDdatabase(object):
 
-    # db_type = {'ceph': '_create_ceph_rrd',
-    #            'gluster': '_create_gluster_rrd'}
-
-    # data_source = ['node_count', 'nodes_active', 'raw_capacity', 'usable_capacity', 'used_capacity']
-    # gluster_data_sources = []
-
     def __init__(self, web_server, interval_secs):
         cfg.log.debug("Using rrd filename of '%s'" % cfg.rrd_db)
         self.fields = ['node_count', 'nodes_active', 'raw_capacity', 'usable_capacity', 'used_capacity']
@@ -79,7 +73,7 @@ class RRDdatabase(object):
 
         graph_options = [str(graph_filename),'--start','now-4h','--step','600',
                       '--watermark','Red Hat Storage','--imgformat','PNG','--disable-rrdtool-tag',
-                      '--width','550','--height','350','--title','Capacity Utilisation',
+                      '--width','550','--height','350','--title','%s Capacity Utilisation' % cfg.storage_type.title(),
                       '--vertical-label','Disk Capacity',
                       '--lower-limit','0',
                       '--base','1024',
