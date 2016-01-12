@@ -9,7 +9,7 @@ from rhsusage.tasks.utils import host_2_ip
 class CephCollector(object):
 
     def __init__(self, rrd_db):
-        #self.rrd_db = rrd_db
+        self.rrd_db = rrd_db
         pass
 
     def update(self):
@@ -32,6 +32,7 @@ class CephCollector(object):
             ceph_data['used_capacity'] = js['pgmap']['bytes_used']
             ceph_data['raw_capacity'] = js['pgmap']['bytes_total']
             ceph_data['usable_capacity'] = 0
+            ceph_data['nodes_active'] = 0
 
             # extract the mon information from the ceph output
             for mon in js['monmap']['mons']:
