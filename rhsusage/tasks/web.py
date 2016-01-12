@@ -72,7 +72,7 @@ def update_details_js(web_root, max_values):
         else:
             max_raw_str = bold_text(max_raw_str)
     else:
-        max_usable_str = bold_text(max_usable_str)
+        max_used_str = bold_text(max_used_str)
 
     with open(os.path.join(web_root, 'js/update_details.js'), 'w') as js:
         js.write("function update_details() {\n")
