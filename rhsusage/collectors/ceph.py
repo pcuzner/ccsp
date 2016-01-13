@@ -13,7 +13,7 @@ class CephCollector(object):
         pass
 
     def update(self):
-        cfg.log.info('getting ceph stats using ceph -s and ceph osd tree commands')
+        cfg.log.info('getting ceph stats using various ceph commands')
         cluster_stats = self.get_data()
         self.rrd_db.update(cluster_stats)
 
@@ -21,18 +21,19 @@ class CephCollector(object):
         # use ceph commands to get the data we need - or could
         # opt to parse ceph.conf with the configparser module?
         ceph_data = {}
+        ceph_data['usable_capacity'] = 0
+        ceph_data['nodes_active'] = 0
+        ceph_data['raw_capacity'] = 0
+        ceph_data['used_capacity'] = 0
         ceph_nodes = set()
 
+        # use ceph -s to get information about the monitors
         cmd = ShellCommand('ceph -s -f json')
         cmd.run()
-        cfg.log.debug("ceph -s command returned %d" % cmd.rc)
+        cfg.log.debug("ceph -s command completed rc=%d" % cmd.rc)
         if cmd.rc == 0:
 
             js = json.loads(cmd.stdout[1])
-            ceph_data['used_capacity'] = js['pgmap']['bytes_used']
-            ceph_data['raw_capacity'] = js['pgmap']['bytes_total']
-            ceph_data['usable_capacity'] = 0
-            ceph_data['nodes_active'] = 0
 
             # extract the mon information from the ceph output
             for mon in js['monmap']['mons']:
@@ -43,7 +44,7 @@ class CephCollector(object):
             # add the osd nodes to the ceph_nodes list
             cmd = ShellCommand('ceph osd tree -f json')
             cmd.run()
-            cfg.log.debug("ceph osd tree command returned %d" % cmd.rc)
+            cfg.log.debug("ceph osd tree command completed rc=%d" % cmd.rc)
             if cmd.rc == 0:
                 js = json.loads(cmd.stdout[1])
                 for osd_element in js['nodes']:
@@ -54,5 +55,14 @@ class CephCollector(object):
                         ceph_nodes.add(hostname)
 
             ceph_data['node_count'] = len(ceph_nodes)
+
+            cmd = ShellCommand('ceph df -f json')
+            cmd.run()
+            cfg.log.debug("ceph df command completed rc=%d" % cmd.rc)
+            if cmd.rc == 0:
+                js = json.loads(cmd.stdout[1])
+                ceph_data['raw_capacity'] = js['stats']['total_bytes']
+                for pool in js['pools']:
+                    ceph_data['used_capacity'] += pool['stats']['bytes_used']
 
         return ceph_data
