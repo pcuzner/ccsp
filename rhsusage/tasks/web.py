@@ -5,6 +5,7 @@ import BaseHTTPServer
 import threading
 import os
 import math
+import datetime
 
 from rhsusage.tasks import config as cfg
 
@@ -41,6 +42,8 @@ def update_mode_js(web_root):
     # update the javascript so on page load the run time parameters
     # can be reflected in the web page
     with open(os.path.join(web_root, 'js/update_mode.js'), 'w') as js:
+        js.write("// update_mode.js updated by rhsusage/tasks/web.py on %s\n" %
+                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
         js.write("function update_mode() {\n")
         js.write("document.getElementById('clusterType').innerHTML='" + cfg.storage_type.title() +"';\n")
         js.write("document.getElementById('accntMode').innerHTML='" + cfg.run_mode.title() +"';\n")
@@ -62,9 +65,9 @@ def update_details_js(web_root, max_values):
     # if set to shared, use set the max_usable string with <strong>
     # if dedicated for ceph emphasize the max_raw, for gluster emphasize max nodes
     max_nodes_str = str(max_values['nodes'])
-    max_raw_str = str(max_raw)
-    max_usable_str = str(max_usable)
-    max_used_str = str(max_used)
+    max_raw_str = str(int(max_raw))
+    max_usable_str = str(int(max_usable))
+    max_used_str = str(int(max_used))
 
     if cfg.run_mode == "dedicated":
         if cfg.storage_type == "gluster":
@@ -75,11 +78,15 @@ def update_details_js(web_root, max_values):
         max_used_str = bold_text(max_used_str)
 
     with open(os.path.join(web_root, 'js/update_details.js'), 'w') as js:
+        js.write("// update_details.js updated by rhsusage/tasks/web.py on %s\n" %
+                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
         js.write("function update_details() {\n")
         js.write("document.getElementById('maxNodes').innerHTML='" + max_nodes_str + "';\n")
         js.write("document.getElementById('maxRaw').innerHTML='" + max_raw_str + " GB';\n")
         js.write("document.getElementById('maxUsable').innerHTML='" + max_usable_str + " GB';\n")
         js.write("document.getElementById('maxUsed').innerHTML='" + max_used_str + " GB';\n")
+        if cfg.storage_type == "ceph":
+            js.write("document.getElementById('usable').style.display = 'none';\n")
         js.write("}\n")
 
     cfg.log.debug("Updated update_details.js with current maximums")
