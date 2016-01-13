@@ -67,20 +67,33 @@ class RRDdatabase(object):
             update_details_js(cfg.web_root, max_values)
             self.ctr = 0
 
+    def _ceph_options(self):
+        return [
+                'DEF:used=' + self.filename + ':used_capacity:MAX',
+                'DEF:raw=' + self.filename + ':raw_capacity:MAX',
+                'LINE2:used#0000ff:Logical Capacity Used',
+                'LINE2:raw#cc0000:Physical Raw Capacity']
+
+    def _gluster_options(self):
+        return [
+                'DEF:used=' + self.filename + ':used_capacity:MAX',
+                'DEF:usable=' + self.filename + ':usable_capacity:MAX',
+                'LINE2:used#0000ff:GB Used',
+                'LINE2:usable#cc0000:GB Usable']
+
     def _create_capacity_graph(self):
         graph_filename = os.path.join(cfg.web_root,'images/usage_chart.png')
         cfg.log.debug("Created capacity graph - %s" % graph_filename)
 
-        graph_options = [str(graph_filename),'--start','now-4h','--step','600',
-                      '--watermark','Red Hat Storage','--imgformat','PNG','--disable-rrdtool-tag',
-                      '--width','550','--height','350','--title','%s Capacity Utilisation' % cfg.storage_type.title(),
-                      '--vertical-label','Disk Capacity',
-                      '--lower-limit','0',
-                      '--base','1024',
-                      'DEF:used=' + self.filename +':used_capacity:AVERAGE',
-                      'DEF:usable=' + self.filename +':usable_capacity:MAX',
-                      'LINE2:used#0000ff:GB Used',
-                      'LINE2:usable#cc0000:GB Usable']
+        # setup references to specific function calls
+        graph_detail = {}
+        graph_detail['ceph'] = self._ceph_options
+        graph_detail['gluster'] = self._gluster_options
+
+        graph_options = [str(graph_filename), '--start', 'now-4h', '--step', '600', '--watermark', 'Red Hat Storage',
+                         '--imgformat', 'PNG', '--disable-rrdtool-tag', '--width', '550', '--height', '350', '--title',
+                         '%s Capacity Utilisation' % cfg.storage_type.title(), '--vertical-label', 'Disk Capacity',
+                         '--lower-limit', '0', '--base', '1024', graph_detail[cfg.storage_type]()]
 
         # Later versions of rrdtool.graph support a null border. However, it's not listed in the __doc__ for
         # graph, so here I just check for the version of OS and add the additional options if supported
@@ -110,7 +123,7 @@ class RRDdatabase(object):
 
         peak = {}
 
-        peak['nodes'] = self._find_max(maximums[2], 0)
+        peak['nodes'] = int(self._find_max(maximums[2], 0))
         peak['raw'] = self._find_max(maximums[2], 2)
         peak['usable'] = self._find_max(maximums[2], 3)
         peak['used'] = self._find_max(maximums[2], 4)
