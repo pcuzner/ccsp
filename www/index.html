@@ -34,10 +34,26 @@
         <div id="detail">
             Observed configuration maximums:<br>
             <!-- the span content is provided by python -->
-            Nodes&nbsp:&nbsp<span id="maxNodes"></span><br>
-            Raw&nbsp:&nbsp<span id="maxRaw"></span><br>
-            Usable&nbsp:&nbsp<span id="maxUsable"></span><br>
-            Used&nbsp:&nbsp<span id="maxUsed"></span><br>
+            <table style="position:relative; top:10px; padding:0px; border-spacing:0px;">
+                <tbody>
+                    <tr id="nodes">
+                        <td style="width:80px;">Nodes&nbsp:</td>
+                        <td><span id="maxNodes">0</span></td>
+                    </tr>
+                    <tr id="raw">
+                        <td>Raw&nbsp:</td>
+                        <td><span id="maxRaw">0</span></td>
+                    </tr>
+                    <tr id="usable">
+                        <td>Usable&nbsp:</td>
+                        <td><span id="maxUsable">0</span></td>
+                    </tr>
+                    <tr id="used">
+                        <td>Used&nbsp:</td>
+                        <td><span id="maxUsed">0</span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
