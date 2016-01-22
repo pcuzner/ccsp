@@ -1,8 +1,11 @@
 __author__ = 'paul'
 
-from ConfigParser import SafeConfigParser
 import logging
 import logging.handlers
+import os
+import rrdtool
+
+from ConfigParser import SafeConfigParser
 
 
 def init(run_time_args):
@@ -53,6 +56,7 @@ def init(run_time_args):
                 var_value = int(var_value)
 
             globals()[var_name] = var_value
+
             if var_name in defaults:
                 defaults.remove(var_name)
 
@@ -60,7 +64,14 @@ def init(run_time_args):
         for default_var in defaults:
             syslog.debug("[DEBUG] Default value used for '%s' - %s " % (default_var, eval(default_var)))
 
-    interval_secs = sample_interval * 60
+    # if the rrd file exists use the existing step setting not the supplied value from the
+    # configuration file
+    if os.path.exists(rrd_db):
+        interval_secs = rrdtool.info(rrd_db)['step']
+        syslog.info('Data gathering interval set by existing rrd file to %d secs - config file ignored'
+                    % interval_secs)
+    else:
+        interval_secs = sample_interval * 60
 
     # set up application logging
     log.setLevel(logging.DEBUG) if run_time_args.debug else log.setLevel(logging.getLevelName(log_level.upper()))

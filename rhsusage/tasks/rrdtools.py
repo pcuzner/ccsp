@@ -10,6 +10,7 @@ from rhsusage.tasks import config as cfg
 from rhsusage.tasks.utils import str2bool
 from rhsusage.tasks.web import update_details_js
 
+
 class RRDdatabase(object):
 
     def __init__(self, web_server, interval_secs):
@@ -141,5 +142,4 @@ class RRDdatabase(object):
         peak['usable'] = self._find_max(maximums[2], 4)
         peak['used'] = self._find_max(maximums[2], 5)
         return peak
-
 
