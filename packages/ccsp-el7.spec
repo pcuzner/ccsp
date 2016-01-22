@@ -1,7 +1,7 @@
 %define dist .el7
 Name:		ccsp	
-Version:	0.1
-Release:	7%{?dist}
+Version:	0.2
+Release:	1%{?dist}
 Summary:	Simple capacity usage tracker for a ceph or glusterfs cluster
 
 Group:		Applications/System

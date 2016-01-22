@@ -23,9 +23,10 @@ class StripExtention(distutils.command.install_scripts.install_scripts):
             if script.endswith(".py"):
                 shutil.move(script, script[:-3])
 
+
 setup(
     name="rhs-usage",
-    version="0.1",
+    version="0.2",
     description="Monitor capacity utilisation of ceph or gluster clusters",
     long_description=long_description,
     author="Paul Cuzner",
@@ -33,6 +34,7 @@ setup(
     url="https://github.com/pcuzner/ccsp",
     license="GPLv3",
     data_files=[("/etc", ["rhs-usage.conf"]),
+                # ("/etc/init", ["startup/rhs-usage.conf"]),
                 ("/var/www/ccsp/css", ["www/css/rhs-usage.css"]),
                 ("/var/www/ccsp/images", ["www/images/logo.png",
                                           "www/images/redhat.ico",
@@ -45,7 +47,7 @@ setup(
         "rhsusage",
         "rhsusage.collectors",
         "rhsusage.tasks"
-        ],
+    ],
     scripts=["rhs_usage.py"],
     cmdclass={
         "install_scripts": StripExtention
