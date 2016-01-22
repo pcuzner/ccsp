@@ -53,10 +53,16 @@ class RRDdatabase(object):
         # use a dict to update the rrd
         cfg.log.debug('updating rrd database with the following values;')
 
-        #
-        # Workaround - account for gstatus not providing a raw_used value
+        # specific pre-processing for the data coming from a gstatus command
         if 'glfs_version' in stats:
+            # Workaround - account for gstatus not providing a raw_used variable
             stats['raw_used'] = stats['used_capacity']
+            # now we look at each volumes used capacity to derive the logical used capacity
+            # (should be fix in gstatus really!)
+            stats['used_capacity'] = 0
+            for vol in stats['volume_summary']:
+                stats['used_capacity'] += vol['used_capacity']
+
 
         cfg.log.debug("node_count = %s, nodes_active = %s, raw_capacity = %s, raw_used = %s,"
                       " usable_capacity = %s, used_capacity = %s"
