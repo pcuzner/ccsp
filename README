@@ -1,4 +1,2 @@
-This package provides a capacity utilisation monitor for the Red Hat Storage portfolio. It is intended to be installed
-on a node within a ceph or glusterfs cluster, and enabled as a service or systemd unit. The tool gathers cluster capacity
-metrics and stores them in an rrd database. The rrd data is then used to generate graphs to show cluster utilisation
-over a given timeframe.
+This package provides a capacity utilisation monitor for the Red Hat Storage portfolio. It is intended to be installed on a node within a ceph or glusterfs cluster, and enabled as a service or systemd unit. The tool gathers cluster capacity
+metrics and stores them in an rrd database. The rrd data is then used to generate graphs to show cluster utilisation over a given timeframe.
