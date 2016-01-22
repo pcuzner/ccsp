@@ -57,6 +57,7 @@ def update_details_js(web_root, max_values):
 
     # 1073741824 = 1GB expressed in bytes
     max_raw = math.ceil(max_values['raw'] / float(1024**3)) if max_values['raw'] > 1073741824 else 0
+    max_raw_used = math.ceil(max_values['raw_used'] / float(1024**3)) if max_values['raw_used'] > 1073741824 else 0
     max_usable = math.ceil(max_values['usable'] / float(1024**3)) if max_values['usable'] > 1073741824 else 0
     max_used = math.ceil(max_values['used'] / float(1024**3)) if max_values['used'] > 1073741824 else 0
 
@@ -66,6 +67,7 @@ def update_details_js(web_root, max_values):
     # if dedicated for ceph emphasize the max_raw, for gluster emphasize max nodes
     max_nodes_str = str(max_values['nodes'])
     max_raw_str = str(int(max_raw))
+    max_raw_used_str = str(int(max_raw_used))
     max_usable_str = str(int(max_usable))
     max_used_str = str(int(max_used))
 
@@ -83,6 +85,7 @@ def update_details_js(web_root, max_values):
         js.write("function update_details() {\n")
         js.write("document.getElementById('maxNodes').innerHTML='" + max_nodes_str + "';\n")
         js.write("document.getElementById('maxRaw').innerHTML='" + max_raw_str + " GB';\n")
+        js.write("document.getElementById('maxRawUsed').innerHTML='" + max_raw_used_str + " GB';\n")
         js.write("document.getElementById('maxUsable').innerHTML='" + max_usable_str + " GB';\n")
         js.write("document.getElementById('maxUsed').innerHTML='" + max_used_str + " GB';\n")
         if cfg.storage_type == "ceph":

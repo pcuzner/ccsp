@@ -42,6 +42,7 @@ class RRDdatabase(object):
                             'DS:node_count:GAUGE:%s:U:U' % overdue_secs,
                             'DS:nodes_active:GAUGE:%s:U:U' % overdue_secs,
                             'DS:raw_capacity:GAUGE:%s:U:U' % overdue_secs,
+                            'DS:raw_used:GAUGE:%s:U:U' % overdue_secs,
                             'DS:usable_capacity:GAUGE:%s:U:U' % overdue_secs,
                             'DS:used_capacity:GAUGE:%s:U:U' % overdue_secs,
                             'RRA:AVERAGE:0.5:4:256',
@@ -50,14 +51,22 @@ class RRDdatabase(object):
     def update(self, stats):
         # use a dict to update the rrd
         cfg.log.debug('updating rrd database with the following values;')
-        cfg.log.debug('node_count = %s, nodes_active = %s, raw_capacity = %s, usable_capacity = %s, used_capacity = %s'
+
+        #
+        # Workaround - account for gstatus not providing a raw_used value
+        if 'glfs_version' in stats:
+            stats['raw_used'] = stats['used_capacity']
+
+        cfg.log.debug("node_count = %s, nodes_active = %s, raw_capacity = %s, raw_used = %s,"
+                      " usable_capacity = %s, used_capacity = %s"
                       % (stats['node_count'], stats['nodes_active'], stats['raw_capacity'],
-                         stats['usable_capacity'], stats['used_capacity']))
+                         stats['raw_used'], stats['usable_capacity'], stats['used_capacity']))
 
         rc = rrdtool.update(str(self.filename),
-                            'N:%s:%s:%s:%s:%s' % (stats['node_count'],
+                            'N:%s:%s:%s:%s:%s:%s' % (stats['node_count'],
                                                   stats['nodes_active'],
                                                   stats['raw_capacity'],
+                                                  stats['raw_used'],
                                                   stats['usable_capacity'],
                                                   stats['used_capacity']))
         self.ctr += 1
@@ -71,8 +80,11 @@ class RRDdatabase(object):
         return [
                 'DEF:used=' + self.filename + ':used_capacity:MAX',
                 'DEF:raw=' + self.filename + ':raw_capacity:MAX',
+                'DEF:raw_used=' + self.filename + ':raw_used:MAX',
                 'LINE2:used#0000ff:Logical Capacity Used',
-                'LINE2:raw#cc0000:Physical Raw Capacity']
+                'LINE2:raw#cc0000:Physical Raw Capacity Installed',
+                'LINE2:raw_used#f9931a:Physical Raw Capacity Used']
+
 
     def _gluster_options(self):
         return [
@@ -88,7 +100,7 @@ class RRDdatabase(object):
         # setup references to specific function calls
         graph_detail = {}
         graph_detail['ceph'] = self._ceph_options
-        graph_detail['gluster'] = self._gluster_options
+        graph_detail['gluster'] = self._ceph_options
 
         graph_options = [str(graph_filename), '--start', 'now-4h', '--step', '600', '--watermark', 'Red Hat Storage',
                          '--imgformat', 'PNG', '--disable-rrdtool-tag', '--width', '550', '--height', '350', '--title',
@@ -125,8 +137,9 @@ class RRDdatabase(object):
 
         peak['nodes'] = int(self._find_max(maximums[2], 0))
         peak['raw'] = self._find_max(maximums[2], 2)
-        peak['usable'] = self._find_max(maximums[2], 3)
-        peak['used'] = self._find_max(maximums[2], 4)
+        peak['raw_used'] = self._find_max(maximums[2], 3)
+        peak['usable'] = self._find_max(maximums[2], 4)
+        peak['used'] = self._find_max(maximums[2], 5)
         return peak
 
 

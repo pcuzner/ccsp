@@ -28,8 +28,8 @@
         <span style="display:block; text-align:center;margin-top:10px;"><h3>Reporting Summary</h3></span>
         <div id="info">
             <!-- the span content is provided by python -->
-            Storage Cluster Type&nbsp:&nbsp<span id="clusterType"></span><br>
-            Accounting Mode&nbsp:&nbsp<span id="accntMode"></span>
+            Storage Cluster Type :&nbsp<span id="clusterType">N/A</span><br>
+            Accounting Mode :&nbsp<span id="accntMode">N/A</span>
         </div>
         <div id="detail">
             Observed configuration maximums:<br>
@@ -37,19 +37,23 @@
             <table style="position:relative; top:10px; padding:0px; border-spacing:0px;">
                 <tbody>
                     <tr id="nodes">
-                        <td style="width:80px;">Nodes&nbsp:</td>
+                        <td style="width:120px;">Nodes :</td>
                         <td><span id="maxNodes">0</span></td>
                     </tr>
                     <tr id="raw">
-                        <td>Raw&nbsp:</td>
+                        <td>Raw Capacity :</td>
                         <td><span id="maxRaw">0</span></td>
                     </tr>
+                    <tr id="raw_used">
+                        <td>Raw Used :</td>
+                        <td><span id="maxRawUsed">0</span></td>
+                    </tr>
                     <tr id="usable">
-                        <td>Usable&nbsp:</td>
+                        <td>Usable :</td>
                         <td><span id="maxUsable">0</span></td>
                     </tr>
                     <tr id="used">
-                        <td>Used&nbsp:</td>
+                        <td>Used :</td>
                         <td><span id="maxUsed">0</span></td>
                     </tr>
                 </tbody>

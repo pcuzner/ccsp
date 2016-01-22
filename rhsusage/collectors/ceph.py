@@ -24,6 +24,7 @@ class CephCollector(object):
         ceph_data['usable_capacity'] = 0
         ceph_data['nodes_active'] = 0
         ceph_data['raw_capacity'] = 0
+        ceph_data['raw_used'] = 0
         ceph_data['used_capacity'] = 0
         ceph_nodes = set()
 
@@ -62,6 +63,10 @@ class CephCollector(object):
             if cmd.rc == 0:
                 js = json.loads(cmd.stdout[1])
                 ceph_data['raw_capacity'] = js['stats']['total_bytes']
+                ceph_data['raw_used'] = js['stats']['total_used_bytes']
+
+                # calculate the used bytes, which is the logical view of space
+                # space consumption (i.e. as viewed from the client)
                 for pool in js['pools']:
                     ceph_data['used_capacity'] += pool['stats']['bytes_used']
 
