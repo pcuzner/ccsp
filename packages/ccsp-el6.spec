@@ -1,7 +1,7 @@
 %define dist .el6
 Name:		ccsp	
-Version:	0.2
-Release:	1%{?dist}
+Version:	0.3
+Release:	3%{?dist}
 Summary:	Simple capacity usage tracker for a ceph or glusterfs cluster
 
 Group:		Applications/System
@@ -58,6 +58,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc README
 %{_bindir}/rhs_usage
+%{_bindir}/rhsextract
 %config /etc/rhs-usage.conf
 %{python2_sitelib}/rhsusage/
 %{python2_sitelib}/rhs_usage-%{version}-*.egg-info/
@@ -67,5 +68,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jan 26 2016 Paul Cuzner <pcuzner@redhat.com> 0.3
+- added rhsextract script for adhoc queries into the data
+- updates to rrdtool module to support ad-hoc queries into the rrd file
+- updated rrd default retention to 6 months of data, 4 hourly summarisation
+- graph displayed now defaults to a month's view
 * Wed Jan 06 2016 Paul Cuzner <pcuzner@redhat.com> 0.1
 - Created

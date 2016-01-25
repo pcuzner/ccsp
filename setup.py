@@ -26,7 +26,7 @@ class StripExtention(distutils.command.install_scripts.install_scripts):
 
 setup(
     name="rhs-usage",
-    version="0.2",
+    version="0.3",
     description="Monitor capacity utilisation of ceph or gluster clusters",
     long_description=long_description,
     author="Paul Cuzner",
@@ -48,7 +48,7 @@ setup(
         "rhsusage.collectors",
         "rhsusage.tasks"
     ],
-    scripts=["rhs_usage.py"],
+    scripts=["rhs_usage.py", "rhsextract.py"],
     cmdclass={
         "install_scripts": StripExtention
     }

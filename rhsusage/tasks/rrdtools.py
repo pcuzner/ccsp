@@ -4,50 +4,58 @@ import os
 import rrdtool
 import platform
 from operator import itemgetter
-
+import datetime
 
 from rhsusage.tasks import config as cfg
-from rhsusage.tasks.utils import str2bool
+#from rhsusage.tasks.utils import str2bool
 from rhsusage.tasks.web import update_details_js
 
 
 class RRDdatabase(object):
 
-    def __init__(self, web_server, interval_secs):
+    def __init__(self):
         cfg.log.debug("Using rrd filename of '%s'" % cfg.rrd_db)
         self.fields = ['node_count', 'nodes_active', 'raw_capacity', 'usable_capacity', 'used_capacity']
         self.filename = cfg.rrd_db
-        self.db_usable = True
+        self.db_usable = False
         self.ctr = 0
-        self.interval_secs = interval_secs
-        self.web_enabled = str2bool(web_server)
+        self.interval_secs = cfg.interval_secs
 
         if os.path.exists(cfg.rrd_db):
-            try:
-                info = rrdtool.info(cfg.rrd_db)
-            except:
-                self.db_usable = False
-                pass
+            self.db_usable = self._rrd_OK()
+
         else:
             cfg.syslog.debug("[DEBUG] Requested RRD file ('%s') does not exist, creating it" % cfg.rrd_db)
             self.create_rrd_db()
+
+    def _rrd_OK(self):
+        try:
+            info = rrdtool.info(cfg.rrd_db)
+            return True
+        except rrdtool.error:
+            return False
 
     def create_rrd_db(self):
         cfg.log.debug("Creating generic rrd database %s" % self.filename)
 
         overdue_secs = self.interval_secs + 10
 
-        rc = rrdtool.create(str(self.filename),
-                            '--step', str(cfg.interval_secs),
-                            '--start', '0',
-                            'DS:node_count:GAUGE:%s:U:U' % overdue_secs,
-                            'DS:nodes_active:GAUGE:%s:U:U' % overdue_secs,
-                            'DS:raw_capacity:GAUGE:%s:U:U' % overdue_secs,
-                            'DS:raw_used:GAUGE:%s:U:U' % overdue_secs,
-                            'DS:usable_capacity:GAUGE:%s:U:U' % overdue_secs,
-                            'DS:used_capacity:GAUGE:%s:U:U' % overdue_secs,
-                            'RRA:AVERAGE:0.5:4:256',
-                            'RRA:MAX:0.5:4:256')
+        # Hold 180 days of data before it rolls out, average/max calculated every 4 hours
+        try:
+            rrdtool.create(str(self.filename),
+                           '--step', str(cfg.interval_secs),
+                           '--start', '0',
+                           'DS:node_count:GAUGE:%s:U:U' % overdue_secs,
+                           'DS:nodes_active:GAUGE:%s:U:U' % overdue_secs,
+                           'DS:raw_capacity:GAUGE:%s:U:U' % overdue_secs,
+                           'DS:raw_used:GAUGE:%s:U:U' % overdue_secs,
+                           'DS:usable_capacity:GAUGE:%s:U:U' % overdue_secs,
+                           'DS:used_capacity:GAUGE:%s:U:U' % overdue_secs,
+                           'RRA:AVERAGE:0.5:4h:180d',
+                           'RRA:MAX:0.5:4h:180d')
+            self.db_usable = True
+        except rrdtool.error:
+            self.db_usable = False
 
     def update(self, stats):
         # use a dict to update the rrd
@@ -76,8 +84,10 @@ class RRDdatabase(object):
                                                   stats['raw_used'],
                                                   stats['usable_capacity'],
                                                   stats['used_capacity']))
+
         self.ctr += 1
-        if self.web_enabled and self.ctr == 2:
+
+        if cfg.web_enabled and self.ctr == 2:
             self.create_graphs()
             max_values = self.get_max_values()
             update_details_js(cfg.web_root, max_values)
@@ -109,7 +119,7 @@ class RRDdatabase(object):
         graph_detail['ceph'] = self._ceph_options
         graph_detail['gluster'] = self._ceph_options
 
-        graph_options = [str(graph_filename), '--start', 'now-4h', '--step', '600', '--watermark', 'Red Hat Storage',
+        graph_options = [str(graph_filename), '--start', 'now-1month', '--watermark', 'Red Hat Storage',
                          '--imgformat', 'PNG', '--disable-rrdtool-tag', '--width', '550', '--height', '350', '--title',
                          '%s Capacity Utilisation' % cfg.storage_type.title(), '--vertical-label', 'Disk Capacity',
                          '--lower-limit', '0', '--base', '1024', graph_detail[cfg.storage_type]()]
@@ -136,9 +146,26 @@ class RRDdatabase(object):
         # we return 0
         return m if m else 0
 
-    def get_max_values(self):
+    def rrd_boundary(self, boundary):
 
-        maximums = rrdtool.fetch(str(self.filename), 'MAX')
+        if boundary == 'first':
+            obs_time = rrdtool.first(self.filename)
+        else:
+            obs_time = rrdtool.last(self.filename)
+
+        dt = datetime.datetime.fromtimestamp(obs_time)
+        return dt.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+    def get_max_values(self, **kwargs):
+
+        window_start = kwargs.get('start_date','-1month')
+        window_end = kwargs.get('end_date', 'now')
+
+        window_start = window_start.replace('/','')
+        window_end = window_end.replace('/','')
+
+        maximums = rrdtool.fetch(self.filename, 'MAX', '--start', window_start, '--end', window_end)
 
         peak = {}
 

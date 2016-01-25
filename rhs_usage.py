@@ -57,7 +57,8 @@ def shutdown(signal, frame):
 
 def start_data_collection():
 
-    rrd_db = RRDdatabase(cfg.web_server, cfg.interval_secs)
+    # rrd database uses the config object for all settings
+    rrd_db = RRDdatabase()
     if not rrd_db.db_usable:
         cfg.syslog.error("RRD database provided (%s) is not usable by rrd" % cfg.rrd_db)
         sys.exit(12)

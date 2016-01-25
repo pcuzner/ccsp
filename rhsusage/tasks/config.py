@@ -3,6 +3,7 @@ __author__ = 'paul'
 import logging
 import logging.handlers
 import os
+import sys
 import rrdtool
 
 from ConfigParser import SafeConfigParser
@@ -24,6 +25,9 @@ def init(run_time_args):
     global sample_interval
     global rrd_db
     global web_root
+    global interactive
+    global caller
+    global web_enabled
 
     # set defaults
     log_file = '/var/log/rhs-usage.log'
@@ -39,12 +43,23 @@ def init(run_time_args):
     defaults = ['log_file', 'log_level', 'rrd_db', 'storage_type', 'run_mode', 'web_server', 'web_server_port',
                 'web_root', 'sample_interval']
 
+    # True = interactive shell, False = background service
+    interactive = sys.stdout.isatty()
+    caller = os.path.basename(sys.argv[0])
+
     log = logging.getLogger('rhs-usage-log')
     syslog = logging.getLogger('syslog')
 
     # setup syslog first so we can log immediately, for any startup or config errors
     syslog.setLevel(logging.DEBUG) if run_time_args.debug else syslog.setLevel(logging.INFO)
-    syslog_handler = logging.handlers.SysLogHandler(address='/dev/log')
+    syslog_format = logging.Formatter("%(message)s")
+
+    if interactive:
+        syslog_handler = logging.StreamHandler(sys.stdout)
+    else:
+        syslog_handler = logging.handlers.SysLogHandler(address='/dev/log')
+
+    syslog_handler.setFormatter(syslog_format)
     syslog.addHandler(syslog_handler)
 
     # Process the config file, overriding any of the defaults with the value
@@ -64,6 +79,8 @@ def init(run_time_args):
         for default_var in defaults:
             syslog.debug("[DEBUG] Default value used for '%s' - %s " % (default_var, eval(default_var)))
 
+    web_enabled = web_server.upper() in ['Y', 'YES']
+
     # if the rrd file exists use the existing step setting not the supplied value from the
     # configuration file
     if os.path.exists(rrd_db):
@@ -76,6 +93,13 @@ def init(run_time_args):
     # set up application logging
     log.setLevel(logging.DEBUG) if run_time_args.debug else log.setLevel(logging.getLevelName(log_level.upper()))
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler = logging.FileHandler(log_file)
+
+    if interactive:
+        formatter = logging.Formatter("%(message)s")
+        handler = logging.StreamHandler(sys.stdout)
+    else:
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        handler = logging.FileHandler(log_file)
+
     handler.setFormatter(formatter)
     log.addHandler(handler)
