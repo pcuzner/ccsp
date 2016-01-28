@@ -53,12 +53,12 @@ p {
 	left: 60px;
 	top: 80px;
 	width: 650px;
-	height:450px;
+	height:465px;
 }
 #summary_info {
 	position: absolute;
 	top:80px;
 	left:750px;
-	height:450px;
+	height:465px;
 	width: 400px;
 }
