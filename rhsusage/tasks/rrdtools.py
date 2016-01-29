@@ -38,7 +38,7 @@ class RRDdatabase(object):
     def create_rrd_db(self):
         cfg.log.debug("Creating generic rrd database %s" % self.filename)
 
-        overdue_secs = self.interval_secs + 10
+        overdue_secs = self.interval_secs * 2
 
         # Hold 180 days of data before it rolls out, average/max calculated every 4 hours
         try:
@@ -51,8 +51,8 @@ class RRDdatabase(object):
                            'DS:raw_used:GAUGE:%s:U:U' % overdue_secs,
                            'DS:usable_capacity:GAUGE:%s:U:U' % overdue_secs,
                            'DS:used_capacity:GAUGE:%s:U:U' % overdue_secs,
-                           'RRA:AVERAGE:0.5:4h:6M',
-                           'RRA:MAX:0.5:4h:6M')
+                           'RRA:AVERAGE:0.5:60:4320',
+                           'RRA:MAX:0.5:60:4320')
             self.db_usable = True
         except rrdtool.error:
             self.db_usable = False
