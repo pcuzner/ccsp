@@ -20,6 +20,7 @@ def init(run_time_args):
     global log
     global syslog
     global interval_secs
+    global points_to_summarize
     global web_server
     global web_server_port
     global sample_interval
@@ -28,6 +29,7 @@ def init(run_time_args):
     global interactive
     global caller
     global web_enabled
+    global days_to_keep
 
     # set defaults
     log_file = '/var/log/rhs-usage.log'
@@ -35,13 +37,18 @@ def init(run_time_args):
     rrd_db = '/var/ccsp/rhs-usage.rrd'
     storage_type = 'gluster'
     run_mode = 'shared'
-    sample_interval = 240
-    web_server = 'n'
+
+    # default to : 60 minute samples, that will be summarised every 4 hours retained for 180 days
+    sample_interval = 60
+    points_to_summarize = 4
+    days_to_keep = 180
+
+    web_server = 'y'
     web_server_port = 8080
     web_root = '/var/www/ccsp'
 
     defaults = ['log_file', 'log_level', 'rrd_db', 'storage_type', 'run_mode', 'web_server', 'web_server_port',
-                'web_root', 'sample_interval']
+                'web_root', 'sample_interval', 'points_to_summarize', 'days_to_keep']
 
     # True = interactive shell, False = background service
     interactive = sys.stdout.isatty()
@@ -85,14 +92,13 @@ def init(run_time_args):
     # configuration file
     if os.path.exists(rrd_db):
         interval_secs = rrdtool.info(rrd_db)['step']
-        syslog.info('Data gathering interval set by existing rrd file to %d secs - config file ignored'
+        syslog.debug('Data gathering interval set by existing rrd file to %d secs - config file ignored'
                     % interval_secs)
     else:
         interval_secs = sample_interval * 60
 
     # set up application logging
     log.setLevel(logging.DEBUG) if run_time_args.debug else log.setLevel(logging.getLevelName(log_level.upper()))
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     if interactive:
         formatter = logging.Formatter("%(message)s")

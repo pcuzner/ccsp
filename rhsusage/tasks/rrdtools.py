@@ -39,8 +39,12 @@ class RRDdatabase(object):
         cfg.log.debug("Creating generic rrd database %s" % self.filename)
 
         overdue_secs = self.interval_secs * 2
+        summary_interval = self.interval_secs * cfg.points_to_summarize
+        intervals_per_day = 86400 / summary_interval
+        intervals_to_keep = cfg.days_to_keep * intervals_per_day
 
         # Hold 180 days of data before it rolls out, average/max calculated every 4 hours
+        # samples are expected every hour
         try:
             rrdtool.create(str(self.filename),
                            '--step', str(cfg.interval_secs),
@@ -51,8 +55,8 @@ class RRDdatabase(object):
                            'DS:raw_used:GAUGE:%s:U:U' % overdue_secs,
                            'DS:usable_capacity:GAUGE:%s:U:U' % overdue_secs,
                            'DS:used_capacity:GAUGE:%s:U:U' % overdue_secs,
-                           'RRA:AVERAGE:0.5:60:4320',
-                           'RRA:MAX:0.5:60:4320')
+                           'RRA:AVERAGE:0.5:%d:%d' % (cfg.points_to_summarize, intervals_to_keep),
+                           'RRA:MAX:0.5:%d:%d' % (cfg.points_to_summarize, intervals_to_keep))
             self.db_usable = True
         except rrdtool.error:
             self.db_usable = False
@@ -87,7 +91,7 @@ class RRDdatabase(object):
 
         self.ctr += 1
 
-        if cfg.web_enabled and self.ctr == 2:
+        if cfg.web_enabled and self.ctr == cfg.points_to_summarize:
             self.create_graphs()
             max_values = self.get_max_values()
             update_details_js(cfg.web_root, max_values)

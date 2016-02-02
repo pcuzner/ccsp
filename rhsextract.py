@@ -10,7 +10,7 @@ import sys
 import datetime
 
 import rhsusage.tasks.config as cfg
-from rhsusage.tasks.utils import dates_OK
+from rhsusage.tasks.utils import dates_OK, readable_bytes
 from rhsusage.tasks.rrdtools import RRDdatabase
 
 def rrd_info(rrd_db):
@@ -26,8 +26,9 @@ def rrd_extract(args, rrd_db):
     op_mode['ceph'] = {'dedicated': 'raw', 'shared': 'raw_used'}
 
     if args.lastndays:
-        args.start_date = (datetime.datetime.today() - datetime.timedelta(days=int(args.lastndays))).strftime('%Y/%m/%d')
-        args.end_date = datetime.datetime.today().strftime('%Y/%m/%d')
+        args.start_date = (datetime.datetime.today() -
+                           datetime.timedelta(days=int(args.lastndays))).strftime('%Y/%m/%d')
+        args.end_date = (datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%Y/%m/%d')
 
     # validate the start and end dates against each other and the rrd file
     if not dates_OK(args, rrd_db):
@@ -35,16 +36,21 @@ def rrd_extract(args, rrd_db):
 
     # At this point the date range is usable with the rrd,
     # so go get the max value
-    print 'everything looks ok for the query'
+    cfg.log.debug('Query looks ok to use')
     peaks = rrd_db.get_max_values(start_date=args.start_date, end_date=args.end_date)
     peak_value = op_mode[cfg.storage_type][cfg.run_mode]
-    print peaks[peak_value]
+
+    print "Billing Mode: %s" % cfg.run_mode.upper()
+    if cfg.storage_type == 'gluster' and cfg.run_mode == 'dedicated':
+        print "Max '%s': %s" % (peak_value, peaks[peak_value])
+    else:
+        print "Max '%s': %s" % (peak_value, readable_bytes(peaks[peak_value], 'GB'))
 
 def main(args):
 
     rrd_db = RRDdatabase()
     if not rrd_db.db_usable:
-        print "database provided is not usable"
+        print "database specified in /etc/rhs-usage.conf is not usable"
         sys.exit(16)
 
     if args.info:

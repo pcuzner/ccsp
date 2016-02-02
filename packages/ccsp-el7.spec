@@ -1,7 +1,7 @@
 %define dist .el7
 Name:		ccsp	
 Version:	0.3
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Simple capacity usage tracker for a ceph or glusterfs cluster
 
 Group:		Applications/System
@@ -63,11 +63,16 @@ rm -rf %{buildroot}
 %{python2_sitelib}/rhsusage/
 %{python2_sitelib}/rhs_usage-%{version}-*.egg-info/
 %dir /var/ccsp
+/var/ccsp
 /var/www/ccsp
 /etc/systemd/system/rhs-usage.service
 
 
 %changelog
+* Tue Feb 01 2016 Paul Cuzner <pcuzner@redhat.com> 0.3
+- removed unnecessary default options from config file
+- applied default retention and sampling policy
+- added method (readable_bytes) to produce human readable output (GB) in rhsextract result
 * Tue Jan 26 2016 Paul Cuzner <pcuzner@redhat.com> 0.3
 - added rhsextract script for adhoc queries into the data
 - updates to rrdtool module to support ad-hoc queries into the rrd file
