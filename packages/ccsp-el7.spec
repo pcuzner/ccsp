@@ -1,15 +1,18 @@
 %define dist .el7
 Name:		ccsp	
 Version:	0.3
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	Simple capacity usage tracker for a ceph or glusterfs cluster
 
 Group:		Applications/System
 License:	GPLv3
 URL:		https://github.com/pcuzner/ccsp
 
-# download from https://github.com/pcuzner/ccsp
-# rename to ccsp-%{version}.tar.gz
+# Build Steps
+# 1. download from https://github.com/pcuzner/ccsp
+# 2. rename to ccsp-%{version}.tar.gz
+# 3. place in your build SOURCES dir, and extract the spec file placing it in SPECS
+# 4. switch to the SPECS dir, and run the build with rpmbuild -bb ccsp-elX.spec
 
 Source0:	%{name}-%{version}.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
@@ -43,12 +46,8 @@ rm -rf %{buildroot}
 %{__python} setup.py install --skip-build --root %{buildroot} --install-scripts %{_bindir}
 mkdir -p %{buildroot}/etc/systemd/system
 mkdir -p %{buildroot}/var/ccsp
+mkdir -p %{buildroot}/var/www/ccsp
 install -m 0644 startup/rhs-usage.service %{buildroot}/etc/systemd/system
-
-#mkdir -p %{buildroot}%{_mandir}/man8
-#install -m 0644 gstatus.8 %{buildroot}%{_mandir}/man8/
-#gzip %{buildroot}%{_mandir}/man8/gstatus.8
-
 
 %clean
 rm -rf %{buildroot}
@@ -59,17 +58,23 @@ rm -rf %{buildroot}
 %doc README
 %{_bindir}/rhs_usage
 %{_bindir}/rhsextract
-%config /etc/rhs-usage.conf
+%config(noreplace) /etc/rhs-usage.conf
 %{python2_sitelib}/rhsusage/
 %{python2_sitelib}/rhs_usage-%{version}-*.egg-info/
-%dir /var/ccsp
 /var/ccsp
 /var/www/ccsp
 /etc/systemd/system/rhs-usage.service
 
+%postun
+if [ $1 == 0 ]; then
+  rm -f /var/log/rhs-usage*.log
+fi
+
 
 %changelog
-* Tue Feb 01 2016 Paul Cuzner <pcuzner@redhat.com> 0.3
+* Fri Feb 19 2016 Paul Cuzner <pcuzner@redhat.com> 0.3-5
+- minor packaging changes
+* Tue Feb 01 2016 Paul Cuzner <pcuzner@redhat.com> 0.3-4
 - removed unnecessary default options from config file
 - applied default retention and sampling policy
 - added method (readable_bytes) to produce human readable output (GB) in rhsextract result
