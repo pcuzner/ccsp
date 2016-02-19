@@ -34,7 +34,9 @@ setup(
     url="https://github.com/pcuzner/ccsp",
     license="GPLv3",
     data_files=[("/etc", ["rhs-usage.conf"]),
+                # include these 2 lines for the debian build process
                 # ("/etc/init", ["startup/rhs-usage.conf"]),
+                # ("/var/ccsp", ["packages/debian_placeholder"]),
                 ("/var/www/ccsp/css", ["www/css/rhs-usage.css"]),
                 ("/var/www/ccsp/images", ["www/images/logo.png",
                                           "www/images/redhat.ico",
